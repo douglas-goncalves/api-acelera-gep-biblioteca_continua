@@ -25,7 +25,7 @@ import br.com.aceleragep.api_biblioteca.converties.AutorConvert;
 import br.com.aceleragep.api_biblioteca.converties.LivroConvert;
 import br.com.aceleragep.api_biblioteca.dtos.inputs.AutorInput;
 import br.com.aceleragep.api_biblioteca.dtos.outputs.AutorOutput;
-import br.com.aceleragep.api_biblioteca.dtos.outputs.LivroOutputSemAutor;
+import br.com.aceleragep.api_biblioteca.dtos.outputs.LivroSemAutorOutput;
 import br.com.aceleragep.api_biblioteca.entities.AutorEntity;
 import br.com.aceleragep.api_biblioteca.entities.LivroEntity;
 import br.com.aceleragep.api_biblioteca.services.AutorService;
@@ -36,13 +36,13 @@ import br.com.aceleragep.api_biblioteca.services.LivroService;
 public class AutorController {
 
 	@Autowired
-	AutorService autorService;
+	private AutorService autorService;
 	@Autowired
-	AutorConvert autorConvert;
+	private AutorConvert autorConvert;
 	@Autowired
-	LivroService livroService;
+	private LivroService livroService;
 	@Autowired
-	LivroConvert livroConvert;
+	private LivroConvert livroConvert;
 
 	// FindAll
 	@GetMapping
@@ -61,13 +61,14 @@ public class AutorController {
 
 	// Post
 	@PostMapping
-	public ResponseEntity<AutorEntity> cadastrar(@Valid @RequestBody AutorInput autorInput,
+	public ResponseEntity<AutorOutput> cadastrar(@Valid @RequestBody AutorInput autorInput,
 			UriComponentsBuilder uriBuild) {
 		AutorEntity autorNovo = autorConvert.inputParaEntity(autorInput);
 		AutorEntity autorSalvo = autorService.cadastrar(autorNovo);
+		AutorOutput autorOutput = autorConvert.entityParaOutput(autorSalvo);
 
 		URI uri = uriBuild.path(ControllerConfig.PRE_URL + "autores/{id}").buildAndExpand(autorSalvo.getId()).toUri();
-		return ResponseEntity.created(uri).body(autorSalvo);
+		return ResponseEntity.created(uri).body(autorOutput);
 	}
 
 	// Put
@@ -81,7 +82,7 @@ public class AutorController {
 
 	// Retorna Todos os Livro pelo ID do Autor
 	@GetMapping("/{autorId}/livros")
-	public Page<LivroOutputSemAutor> listarLivrosPeloIdAutor(@PathVariable Long autorId,
+	public Page<LivroSemAutorOutput> listarLivrosPeloIdAutor(@PathVariable Long autorId,
 			@ParameterObject @PageableDefault(page = 0, size = 10, sort = "id", direction = Direction.ASC) Pageable paginacao) {
 
 		autorService.buscarPeloId(autorId);

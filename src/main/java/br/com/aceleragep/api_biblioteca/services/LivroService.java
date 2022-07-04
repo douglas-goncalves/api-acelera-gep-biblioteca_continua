@@ -13,7 +13,7 @@ import br.com.aceleragep.api_biblioteca.repositories.LivroRepository;
 public class LivroService {
 
 	@Autowired
-	LivroRepository livroRepository;
+	private LivroRepository livroRepository;
 
 	public Page<LivroEntity> listarTodos(Pageable paginacao) {
 		return livroRepository.findAll(paginacao);
@@ -28,8 +28,8 @@ public class LivroService {
 				() -> new NotFoundBussinessException(String.format("O livro de id %s não foi encontrado", livroId)));
 	}
 
-	public void deletar(LivroEntity livrosEncontrados) {
-		livroRepository.delete(livrosEncontrados);
+	public void deletar(LivroEntity livroEncontrado) {
+		livroRepository.delete(livroEncontrado);
 	}
 
 	public LivroEntity atualizar(LivroEntity livroEncontrado) {

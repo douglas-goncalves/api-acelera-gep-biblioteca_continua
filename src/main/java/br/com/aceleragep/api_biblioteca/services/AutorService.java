@@ -13,7 +13,7 @@ import br.com.aceleragep.api_biblioteca.repositories.AutorRepository;
 public class AutorService {
 
 	@Autowired
-	AutorRepository autorRepository;
+	private AutorRepository autorRepository;
 
 	public Page<AutorEntity> listarTodos(Pageable paginacao) {
 		return autorRepository.findAll(paginacao);

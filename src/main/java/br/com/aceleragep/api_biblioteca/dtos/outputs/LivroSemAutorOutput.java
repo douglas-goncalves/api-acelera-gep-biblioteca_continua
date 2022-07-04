@@ -5,8 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AutorOutput {
+public class LivroSemAutorOutput {
 	private Long id;
-	private String nome;
-	private String biografia;
+	private String titulo;
+	private Integer anoLancamento;
 }

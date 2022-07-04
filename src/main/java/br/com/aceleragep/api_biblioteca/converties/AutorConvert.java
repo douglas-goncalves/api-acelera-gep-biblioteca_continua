@@ -1,6 +1,7 @@
 package br.com.aceleragep.api_biblioteca.converties;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,8 +26,8 @@ public class AutorConvert {
 		return modelMapper.map(autorInput, AutorEntity.class);
 	}
 
-	public AutorOutput entityParaOutput(AutorEntity autoreEncontrado) {
-		return modelMapper.map(autoreEncontrado, AutorOutput.class);
+	public AutorOutput entityParaOutput(AutorEntity autorEncontrado) {
+		return modelMapper.map(autorEncontrado, AutorOutput.class);
 	}
 
 	public void copyInputToEntity(AutorEntity autorEncontrado, AutorInput autorInput) {
@@ -38,6 +39,8 @@ public class AutorConvert {
 	}
 
 	public List<AutorEntity> longParaEntity(List<Long> listLong) {
-		return listLong.stream().map(autorService::buscarPeloId).toList();
+		
+		return listLong.stream().map(autorService::buscarPeloId).collect(Collectors.toList());
+		
 	}
 }

@@ -1,5 +1,6 @@
 HELP.md
 api-acelera-gep-biblioteca_continua.bat
+backup
 
 target/
 !.mvn/wrapper/maven-wrapper.jar

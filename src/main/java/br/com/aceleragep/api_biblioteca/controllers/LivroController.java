@@ -35,9 +35,9 @@ import br.com.aceleragep.api_biblioteca.services.LivroService;
 public class LivroController {
 
 	@Autowired
-	LivroService livroService;
+	private LivroService livroService;
 	@Autowired
-	LivroConvert livroConvert;
+	private LivroConvert livroConvert;
 
 	// FindAll
 	@GetMapping
@@ -56,13 +56,14 @@ public class LivroController {
 
 	// Post
 	@PostMapping
-	public ResponseEntity<LivroEntity> cadastrar(@Valid @RequestBody LivroInput livroInput,
+	public ResponseEntity<LivroOutput> cadastrar(@Valid @RequestBody LivroInput livroInput,
 			UriComponentsBuilder uriBuild) {
 		LivroEntity livroNovo = livroConvert.inputParaEntity(livroInput);
 		LivroEntity livroSalvo = livroService.cadastrar(livroNovo);
+		LivroOutput livroOutput =  livroConvert.entityParaOutput(livroSalvo);
 
 		URI uri = uriBuild.path(ControllerConfig.PRE_URL + "livros/{id}").buildAndExpand(livroSalvo.getId()).toUri();
-		return ResponseEntity.created(uri).body(livroSalvo);
+		return ResponseEntity.created(uri).body(livroOutput);
 	}
 
 	// Delete

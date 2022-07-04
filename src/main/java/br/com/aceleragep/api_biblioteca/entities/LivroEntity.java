@@ -14,7 +14,9 @@ import javax.persistence.Table;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
+@ToString
 @Getter
 @Setter
 @Entity
@@ -30,6 +32,8 @@ public class LivroEntity {
 	private Integer anoLancamento;
 
 	@ManyToMany
-	@JoinTable(name = "tb_livros_autores", joinColumns = @JoinColumn(name = "livro_id"), inverseJoinColumns = @JoinColumn(name = "autor_id"))
+	@JoinTable(name = "tb_livros_autores",
+	joinColumns = @JoinColumn(name = "livro_id"),
+	inverseJoinColumns = @JoinColumn(name = "autor_id"))
 	private List<AutorEntity> autores;
 }

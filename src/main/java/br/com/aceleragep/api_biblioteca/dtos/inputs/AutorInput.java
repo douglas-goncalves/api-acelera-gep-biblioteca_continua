@@ -15,5 +15,5 @@ public class AutorInput {
 	private String nome;
 	@NotBlank
 	@Length(min = 1, max = 1000)
-	private String bibliografia;
+	private String biografia;
 }
