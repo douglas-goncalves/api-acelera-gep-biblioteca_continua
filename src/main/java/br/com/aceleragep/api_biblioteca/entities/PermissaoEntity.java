@@ -10,7 +10,9 @@ import org.springframework.security.core.GrantedAuthority;
 
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
+@ToString
 @Entity
 @Getter
 @Setter
@@ -27,7 +29,6 @@ public class PermissaoEntity implements GrantedAuthority {
 
 	@Override
 	public String getAuthority() {
-
-		return this.nome;
+		return this.nome; 
 	}
 }

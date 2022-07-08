@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.aceleragep.api_biblioteca.configs.ControllerConfig;
+import br.com.aceleragep.api_biblioteca.configs.securities.PodeAcessarSe;
 import br.com.aceleragep.api_biblioteca.converties.AutorConvert;
 import br.com.aceleragep.api_biblioteca.converties.LivroConvert;
 import br.com.aceleragep.api_biblioteca.dtos.inputs.AutorInput;
@@ -46,6 +47,7 @@ public class AutorController {
 
 	// FindAll
 	@GetMapping
+	@PodeAcessarSe.TemPermissaoListaAutores
 	public Page<AutorOutput> listarTodos(
 			@ParameterObject @PageableDefault(page = 0, size = 10, sort = "id", direction = Direction.ASC) Pageable paginacao) {
 		Page<AutorEntity> autoresEncontrados = autorService.listarTodos(paginacao);
@@ -54,6 +56,7 @@ public class AutorController {
 
 	// FindById
 	@GetMapping("/{autorId}")
+	@PodeAcessarSe.TemPermissaoBuscarAutor
 	public AutorOutput buscarPorId(@PathVariable Long autorId) {
 		AutorEntity autorEncontrado = autorService.buscarPeloId(autorId);
 		return autorConvert.entityParaOutput(autorEncontrado);
@@ -61,6 +64,7 @@ public class AutorController {
 
 	// Post
 	@PostMapping
+	@PodeAcessarSe.TemPermissaoCadastrarAutor
 	public ResponseEntity<AutorOutput> cadastrar(@Valid @RequestBody AutorInput autorInput,
 			UriComponentsBuilder uriBuild) {
 		AutorEntity autorNovo = autorConvert.inputParaEntity(autorInput);
@@ -73,6 +77,7 @@ public class AutorController {
 
 	// Put
 	@PutMapping("/{autorId}")
+	@PodeAcessarSe.TemPermissaoAtualizaAutor
 	public AutorOutput atualizar(@PathVariable Long autorId, @Valid @RequestBody AutorInput autorInput) {
 		AutorEntity autorEncontrado = autorService.buscarPeloId(autorId);
 		autorConvert.copyInputToEntity(autorEncontrado, autorInput);
@@ -82,6 +87,7 @@ public class AutorController {
 
 	// Retorna Todos os Livro pelo ID do Autor
 	@GetMapping("/{autorId}/livros")
+	@PodeAcessarSe.TemPermissaoListaLivrosDoAutor
 	public Page<LivroSemAutorOutput> listarLivrosPeloIdAutor(@PathVariable Long autorId,
 			@ParameterObject @PageableDefault(page = 0, size = 10, sort = "id", direction = Direction.ASC) Pageable paginacao) {
 

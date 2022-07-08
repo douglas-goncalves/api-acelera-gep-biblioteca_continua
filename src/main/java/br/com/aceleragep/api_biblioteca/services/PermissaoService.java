@@ -38,4 +38,13 @@ public class PermissaoService {
 		return permissaoRepository.save(permissaoEncontrado);
 	}
 
+	public PermissaoEntity buscaPeloNome(String nome) {
+		
+		return permissaoRepository.findByNome(nome);
+	}
+
+	public List<PermissaoEntity> findAllListaBuscaLivroAutor() {
+		return permissaoRepository.findAllListaBuscaLivroAutor();
+	}
+
 }

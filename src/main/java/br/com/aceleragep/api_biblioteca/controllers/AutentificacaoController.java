@@ -28,9 +28,6 @@ public class AutentificacaoController {
 
 	@Autowired
 	private AuthenticationManager authManager;
-	
-	@Autowired
-	UsuarioRepository usuarioRepository;
 
 	@Autowired
 	private TokenService tokenService;

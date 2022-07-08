@@ -1,10 +1,10 @@
 package br.com.aceleragep.api_biblioteca.converties;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import br.com.aceleragep.api_biblioteca.dtos.inputs.PermissaoInput;
@@ -36,10 +36,10 @@ public class PermissaoConvert {
 	}
 
 	public List<PermissaoOutput> pageEntityParaPageOutput(List<PermissaoEntity> permissaoesEncontrados) {
-		return permissaoesEncontrados.stream().map(this::entityParaOutput).toList();
+		return permissaoesEncontrados.stream().map(this::entityParaOutput).collect(Collectors.toList());
 	}
 
 	public List<PermissaoEntity> longParaEntity(List<Long> listLong) {
-		return listLong.stream().map(permissaoService::buscarPeloId).toList();
+		return listLong.stream().map(permissaoService::buscarPeloId).collect(Collectors.toList());
 	}
 }

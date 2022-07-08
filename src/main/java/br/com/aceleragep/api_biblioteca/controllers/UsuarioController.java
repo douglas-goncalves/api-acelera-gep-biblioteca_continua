@@ -24,10 +24,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.aceleragep.api_biblioteca.configs.ControllerConfig;
+import br.com.aceleragep.api_biblioteca.configs.securities.PodeAcessarSe;
 import br.com.aceleragep.api_biblioteca.converties.UsuarioConvert;
-import br.com.aceleragep.api_biblioteca.dtos.inputs.UsuarioInput;
+import br.com.aceleragep.api_biblioteca.dtos.inputs.UsuarioCadastroInput;
+import br.com.aceleragep.api_biblioteca.dtos.inputs.UsuarioPermissoesInput;
 import br.com.aceleragep.api_biblioteca.dtos.outputs.UsuarioOutput;
 import br.com.aceleragep.api_biblioteca.entities.UsuarioEntity;
+import br.com.aceleragep.api_biblioteca.services.TokenService;
 import br.com.aceleragep.api_biblioteca.services.UsuarioService;
 
 @RestController
@@ -37,14 +40,23 @@ public class UsuarioController {
 	@Autowired
 	private UsuarioService usuarioService;
 	@Autowired
+	private TokenService tokenService;
+	@Autowired
 	private UsuarioConvert usuarioConvert;
 
 	// FindAll
-	@GetMapping
+	@GetMapping("lista")
 	public Page<UsuarioOutput> listarTodos(
 			@ParameterObject @PageableDefault(page = 0, size = 10, sort = "id", direction = Direction.ASC) Pageable paginacao) {
 		Page<UsuarioEntity> usuariosEncontrados = usuarioService.listarTodos(paginacao);
 		return usuarioConvert.pageEntityParaPageOutput(usuariosEncontrados);
+	}
+
+	// FindByToken
+	@GetMapping
+	public UsuarioOutput buscarPorToken() {
+		UsuarioEntity usuarioEncontrado = tokenService.getUserByToken();
+		return usuarioConvert.entityParaOutput(usuarioEncontrado);
 	}
 
 	// FindById
@@ -56,9 +68,12 @@ public class UsuarioController {
 
 	// Post
 	@PostMapping
-	public ResponseEntity<UsuarioOutput> cadastrar(@Valid @RequestBody UsuarioInput usuarioInput,
+	public ResponseEntity<UsuarioOutput> cadastrar(@Valid @RequestBody UsuarioCadastroInput usuarioCadastroInput,
 			UriComponentsBuilder uriBuild) {
-		UsuarioEntity usuariosNovo = usuarioConvert.inputParaEntity(usuarioInput);
+
+		usuarioService.jaExiste(usuarioCadastroInput.getEmail());
+
+		UsuarioEntity usuariosNovo = usuarioConvert.cadastroInputParaEntity(usuarioCadastroInput);
 		UsuarioEntity usuariosSalvo = usuarioService.cadastrar(usuariosNovo);
 		UsuarioOutput usuariosOutput = usuarioConvert.entityParaOutput(usuariosSalvo);
 
@@ -76,11 +91,22 @@ public class UsuarioController {
 	}
 
 	// Put
-	@PutMapping("/{usuarioId}")
-	public UsuarioOutput atualizar(@PathVariable Long usuarioId, @Valid @RequestBody UsuarioInput usuarioInput) {
-		UsuarioEntity usuarioEncontrado = usuarioService.buscarPeloId(usuarioId);
-		usuarioConvert.copyInputParaEntity(usuarioEncontrado, usuarioInput);
+	@PutMapping("/alterar-perfil")
+	@PodeAcessarSe.TemPermissaoAcessoBasico
+	public UsuarioOutput atualizar(@Valid @RequestBody UsuarioCadastroInput usuarioAtualizacaoInput) {
+		UsuarioEntity usuarioEncontrado = tokenService.getUserByToken();
+		usuarioConvert.copyAtualizacaoInputParaEntity(usuarioEncontrado, usuarioAtualizacaoInput);
 		UsuarioEntity usuarioSalvo = usuarioService.atualizar(usuarioEncontrado);
+		return usuarioConvert.entityParaOutput(usuarioSalvo);
+	}
+
+	// Alterar Permissoes do Usuario
+	@PutMapping("/{usuarioId}/permissoes")
+	public UsuarioOutput alterarPemissoesUsuario(@PathVariable Long usuarioId,
+			@RequestBody UsuarioPermissoesInput usuarioPermissoesInput) {
+		UsuarioEntity usuarioEncontrado = usuarioService.buscarPeloId(usuarioId);
+		usuarioConvert.copyUsuarioPermissoesInputParaEntity(usuarioEncontrado, usuarioPermissoesInput);
+		UsuarioEntity usuarioSalvo = usuarioService.atualizarPermissoes(usuarioEncontrado);
 		return usuarioConvert.entityParaOutput(usuarioSalvo);
 	}
 }

@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import br.com.aceleragep.api_biblioteca.configs.ControllerConfig;
+import br.com.aceleragep.api_biblioteca.configs.securities.PodeAcessarSe;
 import br.com.aceleragep.api_biblioteca.converties.LivroConvert;
 import br.com.aceleragep.api_biblioteca.dtos.inputs.LivroInput;
 import br.com.aceleragep.api_biblioteca.dtos.outputs.LivroOutput;
@@ -41,6 +42,7 @@ public class LivroController {
 
 	// FindAll
 	@GetMapping
+	@PodeAcessarSe.TemPermissaoListaLivros
 	public Page<LivroOutput> listarTodos(
 			@ParameterObject @PageableDefault(page = 0, size = 10, sort = "id", direction = Direction.ASC) Pageable paginacao) {
 		Page<LivroEntity> livrosEncontrados = livroService.listarTodos(paginacao);
@@ -49,6 +51,7 @@ public class LivroController {
 
 	// FindById
 	@GetMapping("/{livroId}")
+	@PodeAcessarSe.TemPermissaoBuscarLivro
 	public LivroOutput buscarPorId(@PathVariable Long livroId) {
 		LivroEntity livroEncontrado = livroService.buscarPeloId(livroId);
 		return livroConvert.entityParaOutput(livroEncontrado);
@@ -56,6 +59,7 @@ public class LivroController {
 
 	// Post
 	@PostMapping
+	@PodeAcessarSe.TemPermissaoCadastrarLivro
 	public ResponseEntity<LivroOutput> cadastrar(@Valid @RequestBody LivroInput livroInput,
 			UriComponentsBuilder uriBuild) {
 		LivroEntity livroNovo = livroConvert.inputParaEntity(livroInput);
@@ -67,6 +71,7 @@ public class LivroController {
 	}
 
 	// Delete
+	@PodeAcessarSe.TemPermissaoRemoverLivro
 	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	@DeleteMapping("/{livroId}")
 	public void deletar(@PathVariable Long livroId) {
@@ -76,6 +81,7 @@ public class LivroController {
 
 	// Put
 	@PutMapping("/{livroId}")
+	@PodeAcessarSe.TemPermissaoAtualizaLivro
 	public LivroOutput atualizar(@PathVariable Long livroId, @Valid @RequestBody LivroInput livroInput) {
 		LivroEntity livroEncontrado = livroService.buscarPeloId(livroId);
 		livroConvert.copyInputParaEntity(livroEncontrado, livroInput);

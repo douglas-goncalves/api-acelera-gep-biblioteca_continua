@@ -13,5 +13,5 @@ public class UsuarioOutput {
 	private Long id;
 	private String nome;
 	private String email;
-	private List<PermissaoEntity> permissoes = new ArrayList<PermissaoEntity>();
+	private List<PermissaoOutput> permissoes = new ArrayList<PermissaoOutput>();
 }
