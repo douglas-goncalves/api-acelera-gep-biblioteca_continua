@@ -2,19 +2,19 @@ package br.com.aceleragep.api_biblioteca.services;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 import javax.validation.Valid;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import br.com.aceleragep.api_biblioteca.dtos.inputs.UsuarioAlterarSenhaInput;
+import br.com.aceleragep.api_biblioteca.dtos.inputs.UsuarioCadastroInput;
 import br.com.aceleragep.api_biblioteca.entities.PermissaoEntity;
-import br.com.aceleragep.api_biblioteca.entities.RedefenirSenhaEntity;
 import br.com.aceleragep.api_biblioteca.entities.UsuarioEntity;
 import br.com.aceleragep.api_biblioteca.exceptions.BadRequestBussinessException;
 import br.com.aceleragep.api_biblioteca.exceptions.BusinessException;
@@ -24,7 +24,8 @@ import br.com.aceleragep.api_biblioteca.repositories.UsuarioRepository;
 @Service
 public class UsuarioService {
 
-	private String senhaPadrao="aceleragep";
+	@Value("${usuario.senha.padrao}")
+	private String senhaPadrao;
 	
 	@Autowired
 	private UsuarioRepository usuarioRepository;
@@ -95,13 +96,6 @@ public class UsuarioService {
 		return usuarioRepository.findByEmail(email).orElseThrow(() -> new NotFoundBussinessException("Email Não Cadastrado"));
 	}
 
-	//RECUPERAR SENHA
-	public void recuperarSenha(UsuarioEntity usuarioEncontrado) {
-		RedefenirSenhaEntity redefenirSenhaEntity = new RedefenirSenhaEntity();
-		redefenirSenhaEntity.setUsuario(usuarioEncontrado);
-		redefenirSenhaEntity.setHash(UUID.randomUUID().toString());
-		emailService.sendEmail(redefenirSenhaEntity);
-	}
 
 	//COMPARA NOVASENHA COM CONFIRMARSENHA
 	public void compararSenhas(@Valid UsuarioAlterarSenhaInput usuarioSenhaInput) {	
@@ -112,5 +106,10 @@ public class UsuarioService {
 		if(!usuarioSenhaInput.getNovaSenha().equals(usuarioSenhaInput.getConfirmarSenha())) {
 			throw new BusinessException("Os campos senha e confimar senha devem ser iguais");
 		}
+	}
+
+	public static void validarDados(@Valid UsuarioCadastroInput usuarioCadastroInput) {
+		
+		
 	}
 }

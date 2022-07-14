@@ -1,8 +1,6 @@
 package br.com.aceleragep.api_biblioteca.controllers;
 
 import java.net.URI;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.validation.Valid;
 
@@ -32,10 +30,9 @@ import br.com.aceleragep.api_biblioteca.dtos.inputs.UsuarioAlterarSenhaInput;
 import br.com.aceleragep.api_biblioteca.dtos.inputs.UsuarioCadastroInput;
 import br.com.aceleragep.api_biblioteca.dtos.inputs.UsuarioPermissoesInput;
 import br.com.aceleragep.api_biblioteca.dtos.outputs.UsuarioOutput;
-import br.com.aceleragep.api_biblioteca.entities.PermissaoEntity;
 import br.com.aceleragep.api_biblioteca.entities.RedefenirSenhaEntity;
 import br.com.aceleragep.api_biblioteca.entities.UsuarioEntity;
-import br.com.aceleragep.api_biblioteca.services.EmailService;
+import br.com.aceleragep.api_biblioteca.services.RedefinirSenhaService;
 import br.com.aceleragep.api_biblioteca.services.TokenService;
 import br.com.aceleragep.api_biblioteca.services.UsuarioService;
 
@@ -49,8 +46,9 @@ public class UsuarioController {
 	private TokenService tokenService;
 	@Autowired
 	private UsuarioConvert usuarioConvert;
+	
 	@Autowired
-	private EmailService emailService;
+	private RedefinirSenhaService redefinirSenhaService;
 
 	// FindAll
 	@GetMapping("lista")
@@ -135,20 +133,24 @@ public class UsuarioController {
 	@PostMapping("/redefinir-senha/enviar")
 	public void enviarEmailRedefinicaoSenha(String email) {
 		UsuarioEntity usuarioEncontrado = usuarioService.buscarPeloEmail(email);
-		usuarioService.recuperarSenha(usuarioEncontrado);
+		redefinirSenhaService.cadastrarRedefinicao(usuarioEncontrado);
 	}
 
 	// Redefine senha do usuario pelo hash de redefinição
 	@PutMapping("/redefinir-senha/{hash}")
 	public ResponseEntity<UsuarioOutput> redefinirSenhaPorHash(@PathVariable String hash,
-			@RequestBody UsuarioAlterarSenhaInput usuarioSenhaInput) {
-				
-		RedefenirSenhaEntity redefinicaoEncontrada = emailService.buscaPorHash(hash);
-		emailService.validarRedefinicao(redefinicaoEncontrada);
+			@RequestBody UsuarioAlterarSenhaInput usuarioSenhaInput) {	
+		
+		RedefenirSenhaEntity redefinicaoEncontrada = redefinirSenhaService.buscaPorHash(hash);
+		
+		redefinirSenhaService.validarRedefinicao(redefinicaoEncontrada);
 		usuarioService.compararSenhas(usuarioSenhaInput);
+		
 		usuarioConvert.copyUsuarioSenhaInputParaEntity(redefinicaoEncontrada.getUsuario(), usuarioSenhaInput);
 		UsuarioEntity usuarioSalvo = usuarioService.redefinirSenha(redefinicaoEncontrada.getUsuario(), usuarioSenhaInput);
-		emailService.deletar(redefinicaoEncontrada);
+		
+		redefinirSenhaService.deletar(redefinicaoEncontrada);
+		
 		UsuarioOutput usuarioOutput = usuarioConvert.entityParaOutput(usuarioSalvo);
 		return ResponseEntity.ok().body(usuarioOutput);
 	}

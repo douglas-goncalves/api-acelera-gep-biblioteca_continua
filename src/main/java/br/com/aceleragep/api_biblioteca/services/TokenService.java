@@ -5,6 +5,7 @@ import java.util.Date;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -21,15 +22,14 @@ import io.jsonwebtoken.SignatureAlgorithm;
 @Service
 public class TokenService {
 
-	// @Value("${biblioteca.jwt.expirationQuizeDias}")
-	private String expiraQuizeDias = "1296000000";
+	@Value("${biblioteca.jwt.expirationQuizeDias}")
+	private String expiraQuizeDias;
 
-	// @Value("${biblioteca.jwt.expirationUmDia}")
-	private String expiraUmDia = "86400000";
+	@Value("${biblioteca.jwt.expirationUmDia}")
+	private String expiraUmDia;
 
-	// @Value("${biblioteca.jwt.secret}")
-	private String secretKey = "eyJhbGciOiJIUzI1NiJ9.eyJSb2xlIjoiQWRtaW4iLCJJc3N1ZXIiOiJJc3N1ZXIiLCJVc2VybmFtZSI6IkphdmFJblVzZSIsImV4cCI6MTY1NjYzNDYxOSwiaWF0IjoxNjU2NjM0NjE5fQ.CCtsxpEwbkHcp-VobtnBr67xq4I9kkXLjVsh1PpEcAw";
-
+	@Value("${biblioteca.jwt.secret}")
+	private String secretKey;
 	@Autowired
 	UsuarioService usuarioService;
 	@Autowired
@@ -48,9 +48,14 @@ public class TokenService {
 			dataExpiracao = new Date(hoje.getTime() + Long.parseLong(this.expiraUmDia));
 		}
 
-		JwtBuilder build = Jwts.builder().claim("id", logado.getId()).claim("nome", logado.getNome())
-				.claim("email", logado.getEmail()).claim("email", logado.getPermissoes())
-				.setIssuer("Api AceleraGep Biblioteca").setIssuedAt(hoje).setExpiration(dataExpiracao)
+		JwtBuilder build = Jwts.builder()
+				.claim("id", logado.getId())
+				.claim("nome", logado.getNome())
+				.claim("email", logado.getEmail())
+				.claim("permissoes", logado.getPermissoes())
+				.setIssuer("Api AceleraGep Biblioteca")
+				.setIssuedAt(hoje)
+				.setExpiration(dataExpiracao)
 				.signWith(SignatureAlgorithm.HS256, this.secretKey);
 
 		return build.compact();

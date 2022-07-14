@@ -2,24 +2,17 @@ package br.com.aceleragep.api_biblioteca.services;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Optional;
 import java.util.Properties;
 
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 
 import br.com.aceleragep.api_biblioteca.entities.RedefenirSenhaEntity;
-import br.com.aceleragep.api_biblioteca.exceptions.BusinessException;
-import br.com.aceleragep.api_biblioteca.exceptions.NotFoundBussinessException;
-import br.com.aceleragep.api_biblioteca.repositories.RedefenirSenhaRepository;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -42,10 +35,8 @@ public class EmailService {
 	@Value("${mail.smtp.startlls_required}")
 	private String startllsRequired;
 
-	@Autowired
-	private RedefenirSenhaRepository redefenirSenhaRepository;
 
-	public void sendEmail(RedefenirSenhaEntity emailEntity) {
+	public RedefenirSenhaEntity sendEmail(RedefenirSenhaEntity emailEntity) {
 		HtmlBody htmlEmail = htmlEmailCadastro(emailEntity);
 
 		emailEntity.setDataExpiracao(LocalDateTime.now().plusMinutes(30));
@@ -73,37 +64,11 @@ public class EmailService {
 			helper.setFrom(this.username);
 			helper.setTo(emailEntity.getUsuario().getEmail());
 			
-		
-			this.salvar(emailEntity);
 			sender.send(mimeMessage);
-
+			
+			return(emailEntity);
 		} catch (MessagingException ex) {
 			throw new RuntimeException("Erro ao enviar Email");
-		}
-	}
-	
-	//Verifica se o usuario tem alguma redefinicao pendente e salva redefinicao de senha
-	public RedefenirSenhaEntity salvar(RedefenirSenhaEntity emailEntity) {
-		Optional<RedefenirSenhaEntity> redefinicao = redefenirSenhaRepository.findByUsuario(emailEntity.getUsuario());
-		if(redefinicao.isPresent()) {
-			redefenirSenhaRepository.delete(redefinicao.get());	
-		}
-		return redefenirSenhaRepository.save(emailEntity);
-	}
-	
-	//Busca Por Hash
-	public RedefenirSenhaEntity buscaPorHash(String hash) {
-		return redefenirSenhaRepository.findByHash(hash).orElseThrow(()-> new NotFoundBussinessException("Hash Inválido"));
-	}
-	
-	// deletar
-	public void deletar(RedefenirSenhaEntity redefinicaoEncontrada) {
-		redefenirSenhaRepository.delete(redefinicaoEncontrada);
-	}
-	//Valida data de expiracao
-	public void validarRedefinicao(RedefenirSenhaEntity redefinicaoEncontrada) {
-		if(LocalDateTime.now().isAfter(redefinicaoEncontrada.getDataExpiracao())) {
-			throw new BusinessException("Hash Expirado");
 		}
 	}
 	

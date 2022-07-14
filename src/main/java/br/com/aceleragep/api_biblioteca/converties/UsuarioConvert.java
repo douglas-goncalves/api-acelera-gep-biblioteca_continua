@@ -23,7 +23,7 @@ public class UsuarioConvert {
 
 	@Autowired
 	PermissaoConvert permissaoConvert;
-	
+
 	@Autowired
 	PermissaoService permissaoService;
 
@@ -37,22 +37,25 @@ public class UsuarioConvert {
 		return modelMapper.map(usuarioEncontrado, UsuarioOutput.class);
 	}
 
-	public void copyAtualizacaoInputParaEntity(UsuarioEntity usuarioEncontrado, UsuarioCadastroInput usuarioAtualizacaoInput) {
+	public void copyAtualizacaoInputParaEntity(UsuarioEntity usuarioEncontrado,
+			UsuarioCadastroInput usuarioAtualizacaoInput) {
 		modelMapper.map(usuarioAtualizacaoInput, usuarioEncontrado);
 	}
-	
-	public void copyUsuarioSenhaInputParaEntity(UsuarioEntity usuarioEncontrado, UsuarioAlterarSenhaInput usuarioSenhaInput) {
-				
+
+	public void copyUsuarioSenhaInputParaEntity(UsuarioEntity usuarioEncontrado,
+			UsuarioAlterarSenhaInput usuarioSenhaInput) {
+
 		modelMapper.map(usuarioSenhaInput, usuarioEncontrado);
-		
+
 		List<PermissaoEntity> permissoes = permissaoService.findAllListaBuscaLivroAutor();
-		permissoes.forEach(permissao ->{
-			if(!usuarioEncontrado.getPermissoes().contains(permissao)) {
+		permissoes.forEach(permissao -> {
+			if (!usuarioEncontrado.getPermissoes().contains(permissao)) {
 				usuarioEncontrado.getPermissoes().add(permissao);
-			};
-		});		
+			}
+			;
+		});
 	}
-	
+
 	// Output
 	public Page<UsuarioOutput> pageEntityParaPageOutput(Page<UsuarioEntity> usuariosEncontrados) {
 		return usuariosEncontrados.map(this::entityParaOutput);
@@ -61,7 +64,7 @@ public class UsuarioConvert {
 	public void copyUsuarioPermissoesInputParaEntity(UsuarioEntity usuarioEncontrado,
 			UsuarioPermissoesInput usuarioPermissoesInput) {
 		usuarioEncontrado.setPermissoes(permissaoConvert.longParaEntity(usuarioPermissoesInput.getPermissoes()));
-		
+
 	}
 
 }
