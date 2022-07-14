@@ -1,13 +1,17 @@
 package br.com.aceleragep.api_biblioteca.converties;
 
+import java.util.List;
+
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
+import br.com.aceleragep.api_biblioteca.dtos.inputs.UsuarioAlterarSenhaInput;
 import br.com.aceleragep.api_biblioteca.dtos.inputs.UsuarioCadastroInput;
 import br.com.aceleragep.api_biblioteca.dtos.inputs.UsuarioPermissoesInput;
 import br.com.aceleragep.api_biblioteca.dtos.outputs.UsuarioOutput;
+import br.com.aceleragep.api_biblioteca.entities.PermissaoEntity;
 import br.com.aceleragep.api_biblioteca.entities.UsuarioEntity;
 import br.com.aceleragep.api_biblioteca.services.PermissaoService;
 
@@ -35,10 +39,20 @@ public class UsuarioConvert {
 
 	public void copyAtualizacaoInputParaEntity(UsuarioEntity usuarioEncontrado, UsuarioCadastroInput usuarioAtualizacaoInput) {
 		modelMapper.map(usuarioAtualizacaoInput, usuarioEncontrado);
-		usuarioEncontrado.setPermissoes(permissaoService.findAllListaBuscaLivroAutor());
-
 	}
-
+	
+	public void copyUsuarioSenhaInputParaEntity(UsuarioEntity usuarioEncontrado, UsuarioAlterarSenhaInput usuarioSenhaInput) {
+				
+		modelMapper.map(usuarioSenhaInput, usuarioEncontrado);
+		
+		List<PermissaoEntity> permissoes = permissaoService.findAllListaBuscaLivroAutor();
+		permissoes.forEach(permissao ->{
+			if(!usuarioEncontrado.getPermissoes().contains(permissao)) {
+				usuarioEncontrado.getPermissoes().add(permissao);
+			};
+		});		
+	}
+	
 	// Output
 	public Page<UsuarioOutput> pageEntityParaPageOutput(Page<UsuarioEntity> usuariosEncontrados) {
 		return usuariosEncontrados.map(this::entityParaOutput);

@@ -4,14 +4,13 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import br.com.aceleragep.api_biblioteca.entities.PermissaoEntity;
 
 public interface PermissaoRepository extends JpaRepository<PermissaoEntity, Long> {
-
+	
 	PermissaoEntity findByNome(String nome);
-
+	
 	@Query("SELECT p FROM PermissaoEntity p where (((p.nome LIKE 'LISTA%') OR (p.nome LIKE 'BUSCA%'))"
 			+ "AND ((p.nome LIKE '%LIVRO%' OR (p.nome LIKE '%AUTOR%')))) OR (p.nome = 'ACESSO_BASICO')")
 	List<PermissaoEntity> findAllListaBuscaLivroAutor();

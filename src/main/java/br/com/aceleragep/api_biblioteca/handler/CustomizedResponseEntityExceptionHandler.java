@@ -15,7 +15,9 @@ import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import br.com.aceleragep.api_biblioteca.exceptions.BadRequestBussinessException;
+import br.com.aceleragep.api_biblioteca.exceptions.BusinessException;
 import br.com.aceleragep.api_biblioteca.exceptions.NotFoundBussinessException;
+import br.com.aceleragep.api_biblioteca.exceptions.UnauthorizedAccessBussinessException;
 
 @ControllerAdvice
 public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExceptionHandler {
@@ -32,6 +34,20 @@ public class CustomizedResponseEntityExceptionHandler extends ResponseEntityExce
 			WebRequest request) {
 		ProblemExceptionOutput problema = new ProblemExceptionOutput(HttpStatus.NOT_FOUND.value(), ex.getMessage());
 		return new ResponseEntity<ProblemExceptionOutput>(problema, HttpStatus.NOT_FOUND);
+	}
+	
+	@ExceptionHandler(BusinessException.class)
+	public final ResponseEntity<ProblemExceptionOutput> handlerNotFoundBussinessException(BusinessException ex,
+			WebRequest request) {
+		ProblemExceptionOutput problema = new ProblemExceptionOutput(HttpStatus.UNPROCESSABLE_ENTITY.value(), ex.getMessage());
+		return new ResponseEntity<ProblemExceptionOutput>(problema, HttpStatus.UNPROCESSABLE_ENTITY);
+	}
+	
+	@ExceptionHandler(UnauthorizedAccessBussinessException.class)
+	public final ResponseEntity<ProblemExceptionOutput> handlerNotFoundBussinessException(UnauthorizedAccessBussinessException ex,
+			WebRequest request) {
+		ProblemExceptionOutput problema = new ProblemExceptionOutput(HttpStatus.UNAUTHORIZED.value(), ex.getMessage());
+		return new ResponseEntity<ProblemExceptionOutput>(problema, HttpStatus.UNAUTHORIZED);
 	}
 
 	@Override

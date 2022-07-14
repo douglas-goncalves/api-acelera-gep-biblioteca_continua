@@ -18,7 +18,6 @@ import br.com.aceleragep.api_biblioteca.configs.ControllerConfig;
 import br.com.aceleragep.api_biblioteca.dtos.inputs.LoginInput;
 import br.com.aceleragep.api_biblioteca.dtos.outputs.TokenOutput;
 import br.com.aceleragep.api_biblioteca.exceptions.BadRequestBussinessException;
-import br.com.aceleragep.api_biblioteca.repositories.UsuarioRepository;
 import br.com.aceleragep.api_biblioteca.services.TokenService;
 
 @RestController

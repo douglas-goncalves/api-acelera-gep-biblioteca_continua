@@ -93,6 +93,6 @@ public class AutorController {
 
 		autorService.buscarPeloId(autorId);
 		Page<LivroEntity> livrosAutor = livroService.listarLivrosPeloIdAutor(autorId, paginacao);
-		return livroConvert.pageEntityParaPageOutputSemAutor(livrosAutor);
+		return livroConvert.pageEntityParaPageSemAutorOutput(livrosAutor);
 	}
 }

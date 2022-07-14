@@ -39,7 +39,7 @@ public class LivroConvert {
 	}
 
 	// OutputSemAutor
-	public Page<LivroSemAutorOutput> pageEntityParaPageOutputSemAutor(Page<LivroEntity> livrosEncontrados) {
+	public Page<LivroSemAutorOutput> pageEntityParaPageSemAutorOutput(Page<LivroEntity> livrosEncontrados) {
 		return livrosEncontrados.map(this::entityParaOutputSemAutor);
 	}
 

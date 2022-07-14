@@ -82,10 +82,11 @@ public class LivroController {
 	// Put
 	@PutMapping("/{livroId}")
 	@PodeAcessarSe.TemPermissaoAtualizaLivro
-	public LivroOutput atualizar(@PathVariable Long livroId, @Valid @RequestBody LivroInput livroInput) {
+	public ResponseEntity<LivroOutput> atualizar(@PathVariable Long livroId, @Valid @RequestBody LivroInput livroInput) {
 		LivroEntity livroEncontrado = livroService.buscarPeloId(livroId);
 		livroConvert.copyInputParaEntity(livroEncontrado, livroInput);
 		LivroEntity livroSalvo = livroService.atualizar(livroEncontrado);
-		return livroConvert.entityParaOutput(livroSalvo);
+		LivroOutput livroOutput =  livroConvert.entityParaOutput(livroSalvo);
+		return ResponseEntity.ok().body(livroOutput);
 	}
 }

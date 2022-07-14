@@ -1,6 +1,8 @@
 package br.com.aceleragep.api_biblioteca.controllers;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.validation.Valid;
 
@@ -26,10 +28,14 @@ import org.springframework.web.util.UriComponentsBuilder;
 import br.com.aceleragep.api_biblioteca.configs.ControllerConfig;
 import br.com.aceleragep.api_biblioteca.configs.securities.PodeAcessarSe;
 import br.com.aceleragep.api_biblioteca.converties.UsuarioConvert;
+import br.com.aceleragep.api_biblioteca.dtos.inputs.UsuarioAlterarSenhaInput;
 import br.com.aceleragep.api_biblioteca.dtos.inputs.UsuarioCadastroInput;
 import br.com.aceleragep.api_biblioteca.dtos.inputs.UsuarioPermissoesInput;
 import br.com.aceleragep.api_biblioteca.dtos.outputs.UsuarioOutput;
+import br.com.aceleragep.api_biblioteca.entities.PermissaoEntity;
+import br.com.aceleragep.api_biblioteca.entities.RedefenirSenhaEntity;
 import br.com.aceleragep.api_biblioteca.entities.UsuarioEntity;
+import br.com.aceleragep.api_biblioteca.services.EmailService;
 import br.com.aceleragep.api_biblioteca.services.TokenService;
 import br.com.aceleragep.api_biblioteca.services.UsuarioService;
 
@@ -43,6 +49,8 @@ public class UsuarioController {
 	private TokenService tokenService;
 	@Autowired
 	private UsuarioConvert usuarioConvert;
+	@Autowired
+	private EmailService emailService;
 
 	// FindAll
 	@GetMapping("lista")
@@ -87,6 +95,7 @@ public class UsuarioController {
 	@DeleteMapping("/{usuarioId}")
 	public void deletar(@PathVariable Long usuarioId) {
 		UsuarioEntity usuarioEncontrado = usuarioService.buscarPeloId(usuarioId);
+
 		usuarioService.deletar(usuarioEncontrado);
 	}
 
@@ -108,5 +117,39 @@ public class UsuarioController {
 		usuarioConvert.copyUsuarioPermissoesInputParaEntity(usuarioEncontrado, usuarioPermissoesInput);
 		UsuarioEntity usuarioSalvo = usuarioService.atualizarPermissoes(usuarioEncontrado);
 		return usuarioConvert.entityParaOutput(usuarioSalvo);
+	}
+
+	// Redefinir senha do usuario logado
+	@PutMapping("/redefinir-senha")
+	@PodeAcessarSe.TemPermissaoAcessoBasico
+	public ResponseEntity<?> alterarSenhaLogado(@Valid @RequestBody UsuarioAlterarSenhaInput usuarioSenhaInput) {
+		
+		usuarioService.compararSenhas(usuarioSenhaInput);
+		UsuarioEntity usuarioEncontrado = tokenService.getUserByToken();
+		UsuarioEntity usuarioSalvo = usuarioService.redefinirSenha(usuarioEncontrado, usuarioSenhaInput);
+		UsuarioOutput usuarioOutput = usuarioConvert.entityParaOutput(usuarioSalvo);
+		return ResponseEntity.ok().body(usuarioOutput);
+	}
+
+	// Enviar email de recuperacao de senha
+	@PostMapping("/redefinir-senha/enviar")
+	public void enviarEmailRedefinicaoSenha(String email) {
+		UsuarioEntity usuarioEncontrado = usuarioService.buscarPeloEmail(email);
+		usuarioService.recuperarSenha(usuarioEncontrado);
+	}
+
+	// Redefine senha do usuario pelo hash de redefinição
+	@PutMapping("/redefinir-senha/{hash}")
+	public ResponseEntity<UsuarioOutput> redefinirSenhaPorHash(@PathVariable String hash,
+			@RequestBody UsuarioAlterarSenhaInput usuarioSenhaInput) {
+				
+		RedefenirSenhaEntity redefinicaoEncontrada = emailService.buscaPorHash(hash);
+		emailService.validarRedefinicao(redefinicaoEncontrada);
+		usuarioService.compararSenhas(usuarioSenhaInput);
+		usuarioConvert.copyUsuarioSenhaInputParaEntity(redefinicaoEncontrada.getUsuario(), usuarioSenhaInput);
+		UsuarioEntity usuarioSalvo = usuarioService.redefinirSenha(redefinicaoEncontrada.getUsuario(), usuarioSenhaInput);
+		emailService.deletar(redefinicaoEncontrada);
+		UsuarioOutput usuarioOutput = usuarioConvert.entityParaOutput(usuarioSalvo);
+		return ResponseEntity.ok().body(usuarioOutput);
 	}
 }
